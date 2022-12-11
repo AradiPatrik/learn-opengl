@@ -17,15 +17,24 @@ fun main() {
 
 
     val vertices = floatArrayOf(
-        // positions      // colors        // texture coords
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
+        -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // top right
+        1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // bottom right
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // bottom left
+        -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // top left
+        -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // top right
+        1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // bottom right
+        1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // bottom left
+        -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // top left
     )
+
+
     val elements = intArrayOf(
-        0, 1, 3, // first triangle
-        1, 2, 3,  // second triangle
+        0, 1, 2, 2, 3, 0, // top face
+        4, 5, 6, 6, 7, 4, // bottom face
+        1, 2, 6, 6, 5, 1, // right face
+        0, 3, 7, 7, 4, 0, // left face
+        3, 2, 6, 6, 7, 3, // front face
+        0, 1, 5, 5, 4, 0, // back face
     )
 
     val vao = GL33.glGenVertexArrays()
@@ -69,9 +78,9 @@ fun main() {
         GL33.glUniformMatrix4fv(transformLoc, false, trans.get(transformArray))
         GL33.glDrawElements(GL33.GL_TRIANGLES, 6, GL33.GL_UNSIGNED_INT, 0)
 
-        trans.translation(-0.5f, 0.5f, 0.0f)
-            .scale(sin(tick))
+//        trans.translation(-0.5f, 0.5f, 0.0f)
+//            .scale(sin(tick))
         GL33.glUniformMatrix4fv(transformLoc, false, trans.get(transformArray))
-        GL33.glDrawElements(GL33.GL_TRIANGLES, 6, GL33.GL_UNSIGNED_INT, 0)
+        GL33.glDrawElements(GL33.GL_TRIANGLES, 36, GL33.GL_UNSIGNED_INT, 0)
     }
 }

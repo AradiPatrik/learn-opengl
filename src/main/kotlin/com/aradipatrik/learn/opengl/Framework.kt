@@ -1,5 +1,9 @@
 package com.aradipatrik.learn.opengl
 
+import com.aradipatrik.learn.opengl.utils.Vectors
+import org.joml.Math
+import org.joml.Matrix4f
+import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL33
@@ -18,9 +22,95 @@ data class Image(
     val numberOfChannels: Int
 )
 
+class FlyingCamera(
+    val position: Vector3f = Vector3f(0.0f, 0.0f, 0.0f),
+    var pitch: Float = 0.0f,
+    var yaw: Float = 0.0f,
+    var sensitivity: Float = 0.1f,
+    var speed: Float = 5.0f
+) {
+    private var oldX: Float = -1f
+    private var oldY: Float = -1f
+    private var isInited = false
+    private val lookAtMat = Matrix4f()
+    private val lookAtData = FloatArray(16)
+    private val forward = Vector3f()
+    private val up = Vectors.yUnit
+    private val workVec = Vector3f()
+
+    fun tick(window: Long, deltaTime: Float) {
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_W) == GLFW.GLFW_PRESS) {
+            forward.mul(speed * deltaTime, workVec)
+            position.add(workVec)
+        }
+
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_S) == GLFW.GLFW_PRESS) {
+            forward.mul(-speed * deltaTime, workVec)
+            position.add(workVec)
+        }
+
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_D) == GLFW.GLFW_PRESS) {
+            forward.cross(up, workVec)
+            workVec.normalize()
+            workVec.mul(speed * deltaTime)
+            position.add(workVec)
+        }
+
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_A) == GLFW.GLFW_PRESS) {
+            forward.cross(up, workVec)
+            workVec.normalize()
+            workVec.mul(-speed * deltaTime)
+            position.add(workVec)
+        }
+    }
+
+    fun processNewMousePosition(x: Float, y: Float) {
+        if (!isInited) {
+            oldX = x
+            oldY = y
+            isInited = true
+        } else {
+            val xOffset = x - oldX
+            val yOffset = oldY - y // reversed since y-coordinates range from bottom to top
+
+            yaw += xOffset * sensitivity
+            pitch += yOffset * sensitivity
+
+            if (pitch > 89f) pitch = 89.0f
+            if (pitch < -89f) pitch = -89f
+
+            oldX = x
+            oldY = y
+        }
+    }
+
+    fun lookAt() = lookAtData.apply {
+        forward.set(
+            Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)),
+            Math.sin(Math.toRadians(pitch)),
+            Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch))
+        ).normalize()
+
+        position.add(forward, workVec)
+
+        lookAtMat.setLookAt(position, workVec, up)
+            .get(this)
+    }
+}
+
+fun hideCursor(window: Long) {
+    GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+}
+
+fun mouseMoveCallback(window: Long, block: (Float, Float) -> Unit) {
+    GLFW.glfwSetCursorPosCallback(window) { _, x, y ->
+        block(x.toFloat(), y.toFloat())
+    }
+}
+
 fun clear() {
     GL33.glClearColor(0.2f, 0.3f, 0.3f, 1.0f)
-    GL33.glClear(GL33.GL_COLOR_BUFFER_BIT)
+    GL33.glClear(GL33.GL_COLOR_BUFFER_BIT or GL33.GL_DEPTH_BUFFER_BIT)
 }
 
 fun createProgram(vertexShaderSourceCode: String, fragmentShaderSourceCode: String): Int {
@@ -126,6 +216,7 @@ fun initWindowWithOpenGlContext(
     val height = IntArray(1)
     GLFW.glfwGetFramebufferSize(window, width, height)
     GL33.glViewport(0, 0, width.first(), height.first())
+    GL33.glEnable(GL33.GL_DEPTH_TEST)
     return window
 }
 
@@ -153,12 +244,14 @@ fun loadImage(path: String): Image {
     return Image(buffer!!, width.first(), height.first(), channels.first())
 }
 
-fun loop(window: Long, render: () -> Unit) {
+fun loop(window: Long, render: (deltaTime: Float) -> Unit) {
+    var lastFrameTime = System.nanoTime()
     while (!GLFW.glfwWindowShouldClose(window)) {
         processInput(window)
 
-        render()
-
+        val currentTime = System.nanoTime()
+        render((currentTime - lastFrameTime) / 1000000000f)
+        lastFrameTime = currentTime
         GLFW.glfwSwapBuffers(window)
         GLFW.glfwPollEvents()
     }
