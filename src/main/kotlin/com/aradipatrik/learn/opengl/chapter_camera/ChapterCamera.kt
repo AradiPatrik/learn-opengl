@@ -1,9 +1,7 @@
 package com.aradipatrik.learn.opengl.chapter_camera
 
 import com.aradipatrik.learn.opengl.*
-import com.aradipatrik.learn.opengl.models.Box
-import com.aradipatrik.learn.opengl.utils.Vectors.yUnit
-import com.aradipatrik.learn.opengl.utils.Vectors.zUnit
+import com.aradipatrik.learn.opengl.models.Meshes
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.lwjgl.opengl.GL33
@@ -11,7 +9,7 @@ import org.lwjgl.opengl.GL33
 fun main() {
     val window = initWindowWithOpenGlContext()
 
-    val vertices = Box.vertices
+    val vertices = Meshes.Box.vertices
     val shaderProgram = createProgram(
         vertexShaderSourceCode = readResourceAsText("/chapter_camera/vertex.vsh"),
         fragmentShaderSourceCode = readResourceAsText("/chapter_camera/fragment.fsh")

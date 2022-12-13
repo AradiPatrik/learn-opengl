@@ -1,7 +1,7 @@
 package com.aradipatrik.learn.opengl.chapter_coord_sys
 
 import com.aradipatrik.learn.opengl.*
-import com.aradipatrik.learn.opengl.models.Box
+import com.aradipatrik.learn.opengl.models.Meshes
 import org.joml.Math
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -25,7 +25,7 @@ fun main() {
     GL33.glActiveTexture(GL33.GL_TEXTURE1)
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, texture2)
 
-    val vertices = Box.vertices
+    val vertices = Meshes.Box.vertices
 
     val modelPositions = listOf(
         Vector3f( 0.0f,  0.0f,  0.0f),
