@@ -3,36 +3,48 @@ package com.aradipatrik.learn.opengl.models
 object Meshes {
     object Box {
         val vertices = floatArrayOf(
-            -1.0f, 1.0f, -1.0f, // ttl 0
-            1.0f, 1.0f, -1.0f, // ttr 1
-            1.0f, 1.0f, 1.0f, // tbr 2
-            -1.0f, 1.0f, 1.0f, // tbl 3
-            -1.0f, -1.0f, -1.0f, // btl 4
-            1.0f, -1.0f, -1.0f, // btr 5
-            1.0f, -1.0f, 1.0f, // bbr 6
-            -1.0f, -1.0f, 1.0f, // bbl 7
-        )
-
-        val elements = intArrayOf(
-            0, 1, 2, 2, 3, 0, // top face
-            4, 5, 6, 6, 7, 4, // bottom face
-            1, 2, 6, 6, 5, 1, // right face
-            0, 3, 7, 7, 4, 0, // left face
-            3, 2, 6, 6, 7, 3, // front face
-            0, 1, 5, 5, 4, 0, // back face
-        )
-    }
-
-    object Plane {
-        val vertices = floatArrayOf(
-            -1.0f, 1.0f, 0.0f, // tl 0
-            1.0f, 1.0f, 0.0f, // tr 1
-            1.0f, -1.0f, 0.0f, // br 2
-            -1.0f, -1.0f, 0.0f, // bl 3
-        )
-
-        val elements = intArrayOf(
-            0, 1, 2, 2, 3, 0
+            // top face
+            -1f, 1f, -1f, 0.5f, 0.5f, // tl
+            1f, 1f, -1f, 1f, 0.5f, // tr
+            1f, 1f, 1f, 1f, 0f, // br
+            1f, 1f, 1f, 1f, 0f, // br
+            -1f, 1f, 1f, 0.5f, 0f, // bl
+            -1f, 1f, -1f, 0.5f, 0.5f, // tl
+            // bottom face
+            -1f, -1f, -1f, 0f, 1f, // tl
+            1f, -1f, -1f, 0.5f, 1f, // tr
+            1f, -1f, 1f, 0.5f, 0.5f, // br
+            1f, -1f, 1f, 0.5f, 0.5f, // br
+            -1f, -1f, 1f, 0f, 0.5f, // bl
+            -1f, -1f, -1f, 0f, 1f, // tl
+            // right face
+            1f, 1f, -1f, 0.5f, 0.5f, // ttr
+            1f, 1f, 1f, 0f, 0.5f, // tbr
+            1f, -1f, 1f, 0f, 0f, // bbr
+            1f, -1f, 1f, 0f, 0f, // bbr
+            1f, -1f, -1f, 0.5f, 0f, // btr
+            1f, 1f, -1f, 0.5f, 0.5f, // ttr
+            // left face
+            -1f, 1f, -1f, 0.5f, 0.5f, // ttl
+            -1f, 1f, 1f, 0f, 0.5f, // tbl
+            -1f, -1f, 1f, 0f, 0f, // bbl
+            -1f, -1f, 1f, 0f, 0f, // bbl
+            -1f, -1f, -1f, 0.5f, 0f, // btl
+            -1f, 1f, -1f, 0.5f, 0.5f, // ttl
+            // front face
+            1f, 1f, 1f, 0.5f, 0.5f, // tbr
+            -1f, 1f, 1f, 0f, 0.5f, // tbl
+            -1f, -1f, 1f, 0f, 0f, // bbl
+            -1f, -1f, 1f, 0f, 0f, // bbl
+            1f, -1f, 1f, 0.5f, 0f, // bbr
+            1f, 1f, 1f, 0.5f, 0.5f, // tbr
+            // back face
+            -1f, 1f, -1f, 0.5f, 0.5f, // ttl
+            1f, 1f, -1f, 0f, 0.5f, // ttr
+            1f, -1f, -1f, 0f, 0f, // btr
+            1f, -1f, -1f, 0f, 0f, // btr
+            -1f, -1f, -1f, 0.5f, 0f, // btl
+            -1f, 1f, -1f, 0.5f, 0.5f, // ttl
         )
     }
 }
