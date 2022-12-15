@@ -3,12 +3,16 @@ package com.aradipatrik.learn.opengl
 import com.aradipatrik.learn.opengl.utils.Vectors
 import org.joml.Math
 import org.joml.Matrix4f
+import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL33
 import org.lwjgl.stb.STBImage
 import java.nio.ByteBuffer
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.random.Random
 
 const val DEFAULT_WINDOW_WIDTH = 1200
 const val DEFAULT_WINDOW_HEIGHT = 800
@@ -109,7 +113,7 @@ fun mouseMoveCallback(window: Long, block: (Float, Float) -> Unit) {
 }
 
 fun clear() {
-    GL33.glClearColor(0.2f, 0.3f, 0.3f, 1.0f)
+    GL33.glClearColor(0.4f, 0.6f, 0.6f, 1.0f)
     GL33.glClear(GL33.GL_COLOR_BUFFER_BIT or GL33.GL_DEPTH_BUFFER_BIT)
 }
 
@@ -282,4 +286,42 @@ fun createTexture(
     GL33.glGenerateMipmap(GL33.GL_TEXTURE_2D)
     STBImage.stbi_image_free(image.data)
     return texture
+}
+
+typealias Lattice = Array<FloatArray>
+
+const val NOISE_SIZE = 256
+fun createNoiseLattice(seed: Int = 2022): Lattice {
+    val random = Random(seed)
+    return Array(NOISE_SIZE) {
+        FloatArray(NOISE_SIZE).also { array ->
+            repeat(NOISE_SIZE) {
+                array[it] = random.nextFloat()
+            }
+        }
+    }
+}
+
+fun Lattice.noiseValueOf(point: Vector2f): Float {
+    val (xMin, xMax, xT) = getMinMaxT(point.x)
+    val (yMin, yMax, yT) = getMinMaxT(point.y)
+
+    val topLeft = get(yMax)[xMin]
+    val topRight = get(yMax)[xMax]
+    val bottomLeft = get(yMin)[xMin]
+    val bottomRight = get(yMax)[xMax]
+
+    val scaledXT = smoothStep(xT)
+    val scaledYT = smoothStep(yT)
+
+    val topXInterpolation = Math.lerp(topLeft, topRight, scaledXT)
+    val bottomXInterpolation = Math.lerp(bottomLeft, bottomRight, scaledXT)
+
+    return Math.lerp(topXInterpolation, bottomXInterpolation, scaledYT)
+}
+
+fun smoothStep(t: Float) = 6 * t.pow(5) - 15 * t.pow(4) + 10 * t.pow(3)
+
+fun getMinMaxT(value: Float) = abs(value).let {
+    Triple(it.toInt(), (it.toInt() + 1) % NOISE_SIZE, it - it.toInt())
 }

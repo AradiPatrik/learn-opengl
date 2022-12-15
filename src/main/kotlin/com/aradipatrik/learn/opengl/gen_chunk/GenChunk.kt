@@ -3,8 +3,12 @@ package com.aradipatrik.learn.opengl.gen_chunk
 import com.aradipatrik.learn.opengl.*
 import com.aradipatrik.learn.opengl.models.Meshes
 import org.joml.Matrix4f
+import org.joml.Vector2f
 import org.joml.Vector3f
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL33
+import kotlin.math.roundToInt
+import kotlin.random.Random
 
 fun main() {
     val window = initWindowWithOpenGlContext()
@@ -20,16 +24,23 @@ fun main() {
 
     setPerspectiveProjection(shaderProgram)
 
-    val modelPositions = createModelPositions()
+    var modelPositions = createModelPositions(0.0f)
 
     val (viewPosition, modelUniformPosition) = getViewAndModelUniformPositions(shaderProgram)
 
     val flyingCamera = initCamera(window)
 
+    var offset = 0.0f
+
     val modelData = FloatArray(16)
     val model = Matrix4f()
     loop(window) { deltaTime ->
         clear()
+
+        if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_SPACE) == GLFW.GLFW_PRESS) {
+            offset += deltaTime
+            modelPositions = createModelPositions(offset)
+        }
 
         updateCamera(flyingCamera, window, deltaTime, viewPosition)
 
@@ -60,18 +71,31 @@ private fun setPerspectiveProjection(shaderProgram: Int) {
     GL33.glUniformMatrix4fv(GL33.glGetUniformLocation(shaderProgram, "projection"), false, projectionData)
 }
 
-private fun createModelPositions() = listOf(
-    Vector3f(0.0f, 0.0f, 3.0f),
-    Vector3f(2.0f, 5.0f, -15.0f),
-    Vector3f(-1.5f, -2.2f, -2.5f),
-    Vector3f(-3.8f, -2.0f, -12.3f),
-    Vector3f(2.4f, -0.4f, -3.5f),
-    Vector3f(-1.7f, 3.0f, -7.5f),
-    Vector3f(1.3f, -2.0f, -2.5f),
-    Vector3f(1.5f, 2.0f, -2.5f),
-    Vector3f(1.5f, 0.2f, -1.5f),
-    Vector3f(-1.3f, 1.0f, -1.5f)
-)
+private fun createModelPositions(offset: Float): List<Vector3f> {
+    val lattice = createNoiseLattice()
+    return buildList {
+        repeat(24) { y ->
+            repeat(24) { x ->
+                val height = (lattice.noiseValueOf(
+                    Vector2f(
+                        x.toFloat() / 18 + offset,
+                        y.toFloat() / 18 + offset
+                    )
+                ) * 12).roundToInt()
+                repeat(height) { currentHeight ->
+                    add(
+                        Vector3f(
+                            x.toFloat(),
+                            currentHeight.toFloat(),
+                            y.toFloat(),
+                        )
+                    )
+                }
+
+            }
+        }
+    }
+}
 
 private fun updateCamera(
     flyingCamera: FlyingCamera,
